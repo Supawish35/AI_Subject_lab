@@ -12,9 +12,10 @@ from sklearn.metrics import (
     precision_score,
     recall_score,
     f1_score,
-    confusion_matrix,
-    classification_report
+    confusion_matrix
 )
+
+from report_generator import generate_lab5_html_report
 
 def find_file(relative_paths):
     """Locate file from multiple potential relative paths."""
@@ -48,6 +49,7 @@ def run_5fold_cross_validation(model_name, model_instance, X, y, classes, skf):
     print("#" * 78)
 
     fold_results = []
+    fold_details = []
 
     for fold_num, (train_idx, val_idx) in enumerate(skf.split(X, y), start=1):
         X_train, X_val = X[train_idx], X[val_idx]
@@ -80,24 +82,28 @@ def run_5fold_cross_validation(model_name, model_instance, X, y, classes, skf):
         print(f" >>> {model_name} - FOLD {fold_num} / 5 (Validation Data: 20% = {len(val_idx):,} rows) <<<")
         print("=" * 78)
 
-        print("\n[1] ตาราง Actual Table (Confusion Matrix):")
+        print("\n[1] Actual Table (Confusion Matrix):")
         print(cm_df.to_string())
 
-        print("\n[2] รายละเอียดตารางประสิทธิภาพแยกรายคลาส (Per-Class Metrics):")
-        class_metrics_df = pd.DataFrame({
-            'Class': classes,
-            'Precision (%)': np.round(prec_per_class * 100, 2),
-            'Recall (%)': np.round(rec_per_class * 100, 2),
-            'F-Measure (%)': np.round(f1_per_class * 100, 2),
-            'Support': [np.sum(y_val == c) for c in classes]
-        })
+        print("\n[2] Per-Class Performance Metrics:")
+        class_metrics_records = []
+        for idx, c in enumerate(classes):
+            supp = int(np.sum(y_val == c))
+            class_metrics_records.append({
+                'Class': c,
+                'Precision (%)': float(np.round(prec_per_class[idx] * 100, 2)),
+                'Recall (%)': float(np.round(rec_per_class[idx] * 100, 2)),
+                'F-Measure (%)': float(np.round(f1_per_class[idx] * 100, 2)),
+                'Support': supp
+            })
+        class_metrics_df = pd.DataFrame(class_metrics_records)
         print(class_metrics_df.to_string(index=False))
 
-        print("\n[3] สรุปค่าสถิติประจำ Fold:")
-        print(f"   * Accuracy (ความแม่นยำรวม) : {acc * 100:.2f}%")
-        print(f"   * Precision (Weighted)     : {prec_weighted * 100:.2f}%  |  (Macro): {prec_macro * 100:.2f}%")
-        print(f"   * Recall (Weighted)        : {rec_weighted * 100:.2f}%  |  (Macro): {rec_macro * 100:.2f}%")
-        print(f"   * F-Measure (Weighted)     : {f1_weighted * 100:.2f}%  |  (Macro): {f1_macro * 100:.2f}%")
+        print("\n[3] Fold Evaluation Summary:")
+        print(f"   * Accuracy (Overall)    : {acc * 100:.2f}%")
+        print(f"   * Precision (Weighted) : {prec_weighted * 100:.2f}%  |  (Macro): {prec_macro * 100:.2f}%")
+        print(f"   * Recall (Weighted)    : {rec_weighted * 100:.2f}%  |  (Macro): {rec_macro * 100:.2f}%")
+        print(f"   * F-Measure (Weighted) : {f1_weighted * 100:.2f}%  |  (Macro): {f1_macro * 100:.2f}%")
 
         fold_results.append({
             'Fold': f"Fold {fold_num}",
@@ -107,28 +113,42 @@ def run_5fold_cross_validation(model_name, model_instance, X, y, classes, skf):
             'F-Measure': f1_weighted * 100
         })
 
+        fold_details.append({
+            'fold_num': fold_num,
+            'val_samples': len(val_idx),
+            'confusion_matrix': cm.tolist(),
+            'per_class_metrics': class_metrics_records,
+            'accuracy': round(float(acc * 100), 2),
+            'prec_weighted': round(float(prec_weighted * 100), 2),
+            'rec_weighted': round(float(rec_weighted * 100), 2),
+            'f1_weighted': round(float(f1_weighted * 100), 2),
+            'prec_macro': round(float(prec_macro * 100), 2),
+            'rec_macro': round(float(rec_macro * 100), 2),
+            'f1_macro': round(float(f1_macro * 100), 2)
+        })
+
     # Summary across 5 Folds for this algorithm
     summary_df = pd.DataFrame(fold_results)
     
     mean_row = {
-        'Fold': 'Mean (เฉลี่ย)',
-        'Accuracy': summary_df['Accuracy'].mean(),
-        'Precision': summary_df['Precision'].mean(),
-        'Recall': summary_df['Recall'].mean(),
-        'F-Measure': summary_df['F-Measure'].mean()
+        'Fold': 'Mean (Average)',
+        'Accuracy': float(summary_df['Accuracy'].mean()),
+        'Precision': float(summary_df['Precision'].mean()),
+        'Recall': float(summary_df['Recall'].mean()),
+        'F-Measure': float(summary_df['F-Measure'].mean())
     }
     std_row = {
-        'Fold': 'Std (ส่วนเบี่ยงเบน)',
-        'Accuracy': summary_df['Accuracy'].std(),
-        'Precision': summary_df['Precision'].std(),
-        'Recall': summary_df['Recall'].std(),
-        'F-Measure': summary_df['F-Measure'].std()
+        'Fold': 'Std (Deviation)',
+        'Accuracy': float(summary_df['Accuracy'].std()),
+        'Precision': float(summary_df['Precision'].std()),
+        'Recall': float(summary_df['Recall'].std()),
+        'F-Measure': float(summary_df['F-Measure'].std())
     }
     
     summary_with_stats = pd.concat([summary_df, pd.DataFrame([mean_row, std_row])], ignore_index=True)
 
     print("\n" + "-" * 78)
-    print(f" สรุปผลการทดสอบ 5-Fold Cross Validation ของ {model_name}")
+    print(f" 5-Fold Cross Validation Summary for {model_name}")
     print("-" * 78)
     formatted_summary = summary_with_stats.copy()
     for col in ['Accuracy', 'Precision', 'Recall', 'F-Measure']:
@@ -138,23 +158,26 @@ def run_5fold_cross_validation(model_name, model_instance, X, y, classes, skf):
 
     return {
         'Model': model_name,
-        'Accuracy_mean': summary_df['Accuracy'].mean(),
-        'Accuracy_std': summary_df['Accuracy'].std(),
-        'Precision_mean': summary_df['Precision'].mean(),
-        'Precision_std': summary_df['Precision'].std(),
-        'Recall_mean': summary_df['Recall'].mean(),
-        'Recall_std': summary_df['Recall'].std(),
-        'F-Measure_mean': summary_df['F-Measure'].mean(),
-        'F-Measure_std': summary_df['F-Measure'].std()
+        'Accuracy_mean': float(summary_df['Accuracy'].mean()),
+        'Accuracy_std': float(summary_df['Accuracy'].std()),
+        'Precision_mean': float(summary_df['Precision'].mean()),
+        'Precision_std': float(summary_df['Precision'].std()),
+        'Recall_mean': float(summary_df['Recall'].mean()),
+        'Recall_std': float(summary_df['Recall'].std()),
+        'F-Measure_mean': float(summary_df['F-Measure'].mean()),
+        'F-Measure_std': float(summary_df['F-Measure'].std()),
+        'fold_results': fold_results,
+        'summary_rows': summary_with_stats.to_dict('records'),
+        'fold_details': fold_details
     }
 
 def main():
     print("=" * 78)
     print(" LAB 5: MODEL EVALUATION & COMPARISON (20% CROSS VALIDATION)")
-    print(" เปรียบเทียบประสิทธิภาพ: Naive Bayes vs Decision Tree vs K-NN")
+    print(" Comparing Performance: Naive Bayes vs Decision Tree vs K-NN")
     print("=" * 78)
 
-    # 1. โหลดชุดข้อมูล (ใช้ Dataset เดียวกันจาก DataSet directory)
+    # 1. Load dataset (Prioritizing the 10,000-row full normalized dataset)
     dataset_path = find_file([
         '../DataSet/student_dataset_full_normalized.csv',
         'DataSet/student_dataset_full_normalized.csv',
@@ -163,19 +186,22 @@ def main():
     ])
 
     if not dataset_path:
-        print("[*] Dataset not found, creating from Lab3 normalize.py...")
+        print("[*] Normalized dataset not found, generating via Lab3 normalize pipeline...")
         try:
+            lab3_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'Lab3'))
+            if lab3_dir not in sys.path:
+                sys.path.append(lab3_dir)
             from normalize import normalize_10k_dataset
             normalize_10k_dataset()
             dataset_path = find_file(['../DataSet/student_dataset_full_normalized.csv', 'DataSet/student_dataset_full_normalized.csv'])
-        except Exception:
-            pass
+        except Exception as err:
+            print(f"[!] Warning: Auto-normalization attempt failed: {err}")
 
     if not dataset_path or not os.path.exists(dataset_path):
-        print("[!] Error: ไม่พบไฟล์ Dataset ใน DataSet/")
+        print("[!] Error: Could not locate dataset in DataSet directory.")
         sys.exit(1)
 
-    print(f"\n[1] โหลดชุดข้อมูล: {os.path.basename(dataset_path)}")
+    print(f"\n[1] Loading dataset: {os.path.basename(dataset_path)}")
     df = pd.read_csv(dataset_path)
     target_col = 'FinalGrade' if 'FinalGrade' in df.columns else df.columns[-1]
 
@@ -199,15 +225,15 @@ def main():
     y_vec = y.values
     classes = sorted(list(np.unique(y_vec)))
 
-    print(f"  * จำนวนข้อมูลทั้งหมด (Total Samples) : {len(df_clean):,} แถว")
-    print(f"  * คุณลักษณะ (Features) {len(X.columns)} ตัว   : {', '.join(X.columns)}")
-    print(f"  * คลาสเป้าหมาย (Target Classes)       : {', '.join(classes)}")
-    print(f"  * รูปแบบการทดสอบ (Validation Scheme) : 5-Fold Stratified Cross Validation (20% ต่อ Fold)")
+    print(f"  * Total Samples        : {len(df_clean):,} rows")
+    print(f"  * Features ({len(X.columns)})       : {', '.join(X.columns)}")
+    print(f"  * Target Classes       : {', '.join(classes)}")
+    print(f"  * Validation Scheme    : 5-Fold Stratified Cross Validation (20% Holdout per Fold)")
 
-    # 2. ตั้งค่า 5-Fold Stratified Cross Validation
+    # 2. Setup 5-Fold Stratified Cross Validation
     skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
 
-    # 3. กำหนด 3 โมเดลตามโจทย์ (Lab 2: Decision Tree, Lab 3: Naive Bayes, Lab 4: K-NN)
+    # 3. Setup models from Labs 2, 3, and 4
     models = {
         'Naive Bayes (Bayes)': GaussianNB(),
         'Decision Tree': DecisionTreeClassifier(random_state=42),
@@ -216,14 +242,14 @@ def main():
 
     all_model_stats = []
 
-    # 4. ทดสอบ Cross Validation และแสดงตารางครบ 5 Folds สำหรับแต่ละโมเดล
+    # 4. Run Cross Validation for each algorithm
     for name, model in models.items():
         stats = run_5fold_cross_validation(name, model, X_mat, y_vec, classes, skf)
         all_model_stats.append(stats)
 
-    # 5. สรุปตารางเปรียบเทียบประสิทธิภาพทั้ง 3 โมเดล (Final Comparison Table)
+    # 5. Final Comparison Table across all 3 models
     print("\n" + "=" * 78)
-    print(" ตารางสรุปเปรียบเทียบประสิทธิภาพ 3 วิธีการ (FINAL COMPARISON TABLE)")
+    print(" FINAL COMPARISON TABLE (ACROSS 3 ALGORITHMS)")
     print("=" * 78)
 
     comparison_data = []
@@ -240,16 +266,31 @@ def main():
     print(comp_df.to_string(index=False))
     print("=" * 78)
 
-    # 6. วิเคราะห์สรุปผล
+    # 6. Conclusion
     best_acc_model = max(all_model_stats, key=lambda x: x['Accuracy_mean'])
     best_f1_model = max(all_model_stats, key=lambda x: x['F-Measure_mean'])
     best_prec_model = max(all_model_stats, key=lambda x: x['Precision_mean'])
 
-    print("\n[ บทสรุปการประเมินผล (Conclusion) ]:")
-    print(f" 1. โมเดลที่มี Accuracy เฉลี่ยสูงสุด   : {best_acc_model['Model']} ({best_acc_model['Accuracy_mean']:.2f}%)")
-    print(f" 2. โมเดลที่มี F-Measure เฉลี่ยสูงสุด : {best_f1_model['Model']} ({best_f1_model['F-Measure_mean']:.2f}%)")
-    print(f" 3. โมเดลที่มี Precision เฉลี่ยสูงสุด : {best_prec_model['Model']} ({best_prec_model['Precision_mean']:.2f}%)")
+    print("\n[ Summary Conclusions ]:")
+    print(f" 1. Highest Mean Accuracy    : {best_acc_model['Model']} ({best_acc_model['Accuracy_mean']:.2f}%)")
+    print(f" 2. Highest Mean F-Measure  : {best_f1_model['Model']} ({best_f1_model['F-Measure_mean']:.2f}%)")
+    print(f" 3. Highest Mean Precision  : {best_prec_model['Model']} ({best_prec_model['Precision_mean']:.2f}%)")
     print("=" * 78 + "\n")
+
+    # 7. Generate clean simplified HTML report
+    dataset_info = {
+        'dataset_name': os.path.basename(dataset_path),
+        'total_samples': len(df_clean),
+        'features': list(X.columns),
+        'classes': classes
+    }
+    best_models = {
+        'acc': best_acc_model,
+        'f1': best_f1_model,
+        'prec': best_prec_model
+    }
+
+    generate_lab5_html_report(dataset_info, all_model_stats, comparison_data, best_models, classes)
 
 if __name__ == '__main__':
     main()
