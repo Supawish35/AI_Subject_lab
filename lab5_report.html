@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab 5: Cross-Validation & Model Comparison Report</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+    </style>
+</head>
+<body class="min-h-screen py-8 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-6xl mx-auto space-y-6">
+
+        <!-- Header -->
+        <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+                <span class="text-xs font-bold tracking-wider text-indigo-600 uppercase">Machine Learning Evaluation</span>
+                <h1 class="text-2xl font-bold text-slate-900 mt-0.5">Lab 5: Model Evaluation & Comparison</h1>
+                <p class="text-xs text-slate-500 mt-1">
+                    5-Fold Cross Validation (20% Holdout per fold) on unified normalized dataset (10,000 samples)
+                </p>
+            </div>
+            <div class="flex flex-wrap items-center gap-2 text-xs font-mono text-slate-600">
+                <span class="px-2.5 py-1 bg-slate-100 rounded border border-slate-200">Dataset: student_dataset_full_normalized.csv</span>
+                <span class="px-2.5 py-1 bg-slate-100 rounded border border-slate-200">Rows: 10,000</span>
+                <span class="px-2.5 py-1 bg-indigo-50 text-indigo-700 rounded border border-indigo-200 font-semibold">2026-10-08 13:57:26</span>
+            </div>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
+                <span class="text-xs font-semibold text-slate-500 uppercase">Highest Accuracy</span>
+                <div class="text-2xl font-bold text-indigo-600 font-mono mt-1">73.86%</div>
+                <div class="text-xs text-slate-600 font-medium mt-0.5">Naive Bayes (Bayes)</div>
+            </div>
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
+                <span class="text-xs font-semibold text-slate-500 uppercase">Highest F-Measure</span>
+                <div class="text-2xl font-bold text-emerald-600 font-mono mt-1">70.16%</div>
+                <div class="text-xs text-slate-600 font-medium mt-0.5">K-Nearest Neighbors (K-NN, K=5)</div>
+            </div>
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
+                <span class="text-xs font-semibold text-slate-500 uppercase">Highest Precision</span>
+                <div class="text-2xl font-bold text-blue-600 font-mono mt-1">68.43%</div>
+                <div class="text-xs text-slate-600 font-medium mt-0.5">K-Nearest Neighbors (K-NN, K=5)</div>
+            </div>
+        </div>
+
+        <!-- Overall Comparison Table & Chart -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <!-- Table (7 cols) -->
+            <div class="lg:col-span-7 bg-white border border-slate-200 rounded-xl p-5 shadow-sm flex flex-col justify-between">
+                <div>
+                    <h2 class="text-base font-bold text-slate-800 pb-3 border-b border-slate-100">
+                        Final Model Comparison (Average ± Std across 5 Folds)
+                    </h2>
+                    <div class="overflow-x-auto mt-3">
+                        <table class="w-full text-xs text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50 text-slate-600 border-b border-slate-200 font-semibold">
+                                    <th class="px-4 py-2.5">Algorithm</th>
+                                    <th class="px-4 py-2.5 text-center text-indigo-700">Accuracy (%)</th>
+                                    <th class="px-4 py-2.5 text-center">Precision (%)</th>
+                                    <th class="px-4 py-2.5 text-center">Recall (%)</th>
+                                    <th class="px-4 py-2.5 text-center text-emerald-700">F-Measure (%)</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100">
+                                
+        <tr class="hover:bg-slate-50 transition-colors">
+            <td class="px-4 py-3 font-semibold text-slate-800">Naive Bayes (Bayes)</td>
+            <td class="px-4 py-3 text-center font-mono font-bold text-indigo-700 bg-indigo-50/40">73.86 ± 0.17</td>
+            <td class="px-4 py-3 text-center font-mono text-slate-700">66.38 ± 1.11</td>
+            <td class="px-4 py-3 text-center font-mono text-slate-700">73.86 ± 0.17</td>
+            <td class="px-4 py-3 text-center font-mono font-bold text-emerald-700 bg-emerald-50/40">67.55 ± 0.51</td>
+        </tr>
+        
+        <tr class="hover:bg-slate-50 transition-colors">
+            <td class="px-4 py-3 font-semibold text-slate-800">Decision Tree</td>
+            <td class="px-4 py-3 text-center font-mono font-bold text-indigo-700 bg-indigo-50/40">67.12 ± 0.64</td>
+            <td class="px-4 py-3 text-center font-mono text-slate-700">67.83 ± 0.37</td>
+            <td class="px-4 py-3 text-center font-mono text-slate-700">67.12 ± 0.64</td>
+            <td class="px-4 py-3 text-center font-mono font-bold text-emerald-700 bg-emerald-50/40">67.45 ± 0.43</td>
+        </tr>
+        
+        <tr class="hover:bg-slate-50 transition-colors">
+            <td class="px-4 py-3 font-semibold text-slate-800">K-Nearest Neighbors (K-NN, K=5)</td>
+            <td class="px-4 py-3 text-center font-mono font-bold text-indigo-700 bg-indigo-50/40">73.03 ± 0.76</td>
+            <td class="px-4 py-3 text-center font-mono text-slate-700">68.43 ± 1.16</td>
+            <td class="px-4 py-3 text-center font-mono text-slate-700">73.03 ± 0.76</td>
+            <td class="px-4 py-3 text-center font-mono font-bold text-emerald-700 bg-emerald-50/40">70.16 ± 0.87</td>
+        </tr>
+        
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="text-[11px] text-slate-500 pt-3 border-t border-slate-100 mt-4">
+                    * Metrics calculated with weighted averaging across target classes: A, B, C, D, F
+                </div>
+            </div>
+
+            <!-- Chart (5 cols) -->
+            <div class="lg:col-span-5 bg-white border border-slate-200 rounded-xl p-5 shadow-sm flex flex-col justify-between">
+                <h2 class="text-base font-bold text-slate-800 pb-2 border-b border-slate-100">
+                    Accuracy & F-Measure Visual Comparison
+                </h2>
+                <div class="h-56 mt-2 relative">
+                    <canvas id="comparisonChart"></canvas>
+                </div>
+                <div class="text-center text-[11px] text-slate-400 font-mono pt-2 border-t border-slate-100">
+                    5-Fold Cross Validation Mean Results
+                </div>
+            </div>
+        </div>
+
+        <!-- Individual Model Sections (Actual Tables + Fold Metrics) -->
+        <div class="space-y-6">
+            <h2 class="text-lg font-bold text-slate-900">
+                Detailed 5-Fold Evaluation by Algorithm
+            </h2>
+            
+        <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-100 gap-2">
+                <div class="flex items-center gap-3">
+                    <span class="w-8 h-8 rounded-lg bg-indigo-600 text-white font-bold flex items-center justify-center text-sm shadow-sm">
+                        1
+                    </span>
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-800">Naive Bayes (Bayes)</h3>
+                        <p class="text-xs text-slate-500">20% Stratified Validation per fold (2,000 samples / fold)</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3 text-xs font-mono">
+                    <span class="px-2.5 py-1 rounded bg-indigo-50 text-indigo-700 font-bold border border-indigo-100">
+                        Accuracy: 73.86%
+                    </span>
+                    <span class="px-2.5 py-1 rounded bg-emerald-50 text-emerald-700 font-bold border border-emerald-100">
+                        F-Measure: 67.55%
+                    </span>
+                </div>
+            </div>
+
+            <!-- 5 Folds Summary Table -->
+            <div class="overflow-x-auto">
+                <table class="w-full text-xs text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50 text-slate-600 border-b border-slate-200 font-semibold">
+                            <th class="px-3 py-2">Validation Split</th>
+                            <th class="px-3 py-2 text-center text-indigo-700">Accuracy</th>
+                            <th class="px-3 py-2 text-center">Precision (Weighted)</th>
+                            <th class="px-3 py-2 text-center">Recall (Weighted)</th>
+                            <th class="px-3 py-2 text-center text-emerald-700">F-Measure (Weighted)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+            <tr class="hover:bg-slate-50 border-b border-slate-100">
+                <td class="px-3 py-2 font-medium text-slate-700">Fold 1</td>
+                <td class="px-3 py-2 text-center font-mono font-semibold text-indigo-600">73.75%</td>
+                <td class="px-3 py-2 text-center font-mono text-slate-600">65.80%</td>
+                <td class="px-3 py-2 text-center font-mono text-slate-600">73.75%</td>
+                <td class="px-3 py-2 text-center font-mono font-semibold text-emerald-600">67.21%</td>
+            </tr>
+            
+            <tr class="hover:bg-slate-50 border-b border-slate-100">
+                <td class="px-3 py-2 font-medium text-slate-700">Fold 2</td>
+                <td class="px-3 py-2 text-center font-mono font-semibold text-indigo-600">73.65%</td>
+                <td class="px-3 py-2 text-center font-mono text-slate-600">64.98%</td>
+                <td class="px-3 py-2 text-center font-mono text-slate-600">73.65%</td>
+                <td class="px-3 py-2 text-center font-mono font-semibold text-emerald-600">67.00%</td>
+            </tr>
+            
+            <tr class="hover:bg-slate-50 border-b border-slate-100">
+                <td class="px-3 py-2 font-medium text-slate-700">Fold 3</td>
+                <td class="px-3 py-2 text-center font-mono font-semibold text-indigo-600">74.05%</td>
+                <td class="px-3 py-2 text-center font-mono text-slate-600">66.96%</td>
+                <td class="px-3 py-2 text-center font-mono text-slate-600">74.05%</td>
+                <td class="px-3 py-2 text-center font-mono font-semibold text-emerald-600">68.33%</td>
+            </tr>
+            
+            <tr class="hover:bg-slate-50 border-b border-slate-100">
+                <td class="px-3 py-2 font-medium text-slate-700">Fold 4</td>
+                <td class="px-3 py-2 text-center font-mono font-semibold text-indigo-600">73.85%</td>
+                <td class="px-3 py-2 text-center font-mono text-slate-600">67.89%</td>
+                <td class="px-3 py-2 text-center font-mono text-slate-600">73.85%</td>
+                <td class="px-3 py-2 text-center font-mono font-semibold text-emerald-600">67.52%</td>
+            </tr>
+            
+            <tr class="hover:bg-slate-50 border-b border-slate-100">
+                <td class="px-3 py-2 font-medium text-slate-700">Fold 5</td>
+                <td class="px-3 py-2 text-center font-mono font-semibold text-indigo-600">74.00%</td>
+                <td class="px-3 py-2 text-center font-mono text-slate-600">66.29%</td>
+                <td class="px-3 py-2 text-center font-mono text-slate-600">74.00%</td>
+                <td class="px-3 py-2 text-center font-mono font-semibold text-emerald-600">67.70%</td>
+            </tr>
+            
+        <tr class="bg-slate-100/80 font-bold border-t-2 border-slate-200">
+            <td class="px-3 py-2 text-slate-800">Mean (Average)</td>
+            <td class="px-3 py-2 text-center font-mono text-indigo-700">73.86%</td>
+            <td class="px-3 py-2 text-center font-mono text-slate-800">66.38%</td>
+            <td class="px-3 py-2 text-center font-mono text-slate-800">73.86%</td>
+            <td class="px-3 py-2 text-center font-mono text-emerald-700">67.55%</td>
+        </tr>
+        <tr class="bg-slate-50 text-xs text-slate-500 font-medium">
+            <td class="px-3 py-1.5 text-slate-500">Std Deviation (±)</td>
+            <td class="px-3 py-1.5 text-center font-mono">±0.17%</td>
+            <td class="px-3 py-1.5 text-center font-mono">±1.11%</td>
+            <td class="px-3 py-1.5 text-center font-mono">±0.17%</td>
+            <td class="px-3 py-1.5 text-center font-mono">±0.51%</td>
+        </tr>
+        
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 5 Confusion Matrices in a compact grid -->
+            <div>
+                <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                    5 Folds Actual Tables (Confusion Matrices)
+                </h4>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                    
+            <div class="bg-white border border-slate-200 rounded-lg p-3 shadow-sm">
+                <div class="flex justify-between items-center mb-2 pb-1 border-b border-slate-100 text-xs">
+                    <span class="font-bold text-slate-700">Fold 1 Actual Table</span>
+                    <span class="font-mono text-indigo-600 font-semibold">Acc: 73.8%</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-[11px] border-collapse">
+                        <thead>
+                            <tr class="text-slate-500 border-b border-slate-200">
+                                <th class="px-1 py-1 text-left font-semibold">Act \ Pred</th>
+                                <th class="px-1 py-1 text-center font-semibold text-slate-700">A</th><th class="px-1 py-1 text-center font-semibold text-slate-700">B</th><th class="px-1 py-1 text-center font-semibold text-slate-700">C</th><th class="px-1 py-1 text-center font-semibold text-slate-700">D</th><th class="px-1 py-1 text-center font-semibold text-slate-700">F</th>
+                                <th class="px-1 py-1 text-center font-semibold text-slate-400">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual A</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">1387</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">7</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">13</td><td class="px-2 py-1 text-center font-mono text-xs text-slate-400">0</td><td class="px-2 py-1 text-center font-mono text-xs text-slate-400">0</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">1407</td></tr><tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual B</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">213</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">12</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">39</td><td class="px-2 py-1 text-center font-mono text-xs text-slate-400">0</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">1</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">265</td></tr><tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual C</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">103</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">22</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">59</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">2</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">8</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">194</td></tr><tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual D</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">29</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">7</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">36</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">2</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">18</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">92</td></tr><tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual F</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">4</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">3</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">20</td><td class="px-2 py-1 text-center font-mono text-xs text-slate-400">0</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">15</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">42</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="bg-white border border-slate-200 rounded-lg p-3 shadow-sm">
+                <div class="flex justify-between items-center mb-2 pb-1 border-b border-slate-100 text-xs">
+                    <span class="font-bold text-slate-700">Fold 2 Actual Table</span>
+                    <span class="font-mono text-indigo-600 font-semibold">Acc: 73.7%</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-[11px] border-collapse">
+                        <thead>
+                            <tr class="text-slate-500 border-b border-slate-200">
+                                <th class="px-1 py-1 text-left font-semibold">Act \ Pred</th>
+                                <th class="px-1 py-1 text-center font-semibold text-slate-700">A</th><th class="px-1 py-1 text-center font-semibold text-slate-700">B</th><th class="px-1 py-1 text-center font-semibold text-slate-700">C</th><th class="px-1 py-1 text-center font-semibold text-slate-700">D</th><th class="px-1 py-1 text-center font-semibold text-slate-700">F</th>
+                                <th class="px-1 py-1 text-center font-semibold text-slate-400">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual A</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">1390</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">4</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">13</td><td class="px-2 py-1 text-center font-mono text-xs text-slate-400">0</td><td class="px-2 py-1 text-center font-mono text-xs text-slate-400">0</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">1407</td></tr><tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual B</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">212</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">13</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">39</td><td class="px-2 py-1 text-center font-mono text-xs text-slate-400">0</td><td class="px-2 py-1 text-center font-mono text-xs text-slate-400">0</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">264</td></tr><tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual C</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">113</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">12</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">56</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">3</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">10</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">194</td></tr><tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual D</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">23</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">7</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">49</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">1</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">13</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">93</td></tr><tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual F</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">2</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">4</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">20</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">3</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">13</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">42</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="bg-white border border-slate-200 rounded-lg p-3 shadow-sm">
+                <div class="flex justify-between items-center mb-2 pb-1 border-b border-slate-100 text-xs">
+                    <span class="font-bold text-slate-700">Fold 3 Actual Table</span>
+                    <span class="font-mono text-indigo-600 font-semibold">Acc: 74.0%</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-[11px] border-collapse">
+                        <thead>
+                            <tr class="text-slate-500 border-b border-slate-200">
+                                <th class="px-1 py-1 text-left font-semibold">Act \ Pred</th>
+                                <th class="px-1 py-1 text-center font-semibold text-slate-700">A</th><th class="px-1 py-1 text-center font-semibold text-slate-700">B</th><th class="px-1 py-1 text-center font-semibold text-slate-700">C</th><th class="px-1 py-1 text-center font-semibold text-slate-700">D</th><th class="px-1 py-1 text-center font-semibold text-slate-700">F</th>
+                                <th class="px-1 py-1 text-center font-semibold text-slate-400">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual A</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">1379</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">12</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">16</td><td class="px-2 py-1 text-center font-mono text-xs text-slate-400">0</td><td class="px-2 py-1 text-center font-mono text-xs text-slate-400">0</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">1407</td></tr><tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual B</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">211</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">23</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">29</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">1</td><td class="px-2 py-1 text-center font-mono text-xs text-slate-400">0</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">264</td></tr><tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual C</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">108</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">15</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">60</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">5</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">6</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">194</td></tr><tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual D</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">26</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">11</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">39</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">6</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">11</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">93</td></tr><tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual F</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">1</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">2</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">18</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">8</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">13</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">42</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="bg-white border border-slate-200 rounded-lg p-3 shadow-sm">
+                <div class="flex justify-between items-center mb-2 pb-1 border-b border-slate-100 text-xs">
+                    <span class="font-bold text-slate-700">Fold 4 Actual Table</span>
+                    <span class="font-mono text-indigo-600 font-semibold">Acc: 73.8%</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-[11px] border-collapse">
+                        <thead>
+                            <tr class="text-slate-500 border-b border-slate-200">
+                                <th class="px-1 py-1 text-left font-semibold">Act \ Pred</th>
+                                <th class="px-1 py-1 text-center font-semibold text-slate-700">A</th><th class="px-1 py-1 text-center font-semibold text-slate-700">B</th><th class="px-1 py-1 text-center font-semibold text-slate-700">C</th><th class="px-1 py-1 text-center font-semibold text-slate-700">D</th><th class="px-1 py-1 text-center font-semibold text-slate-700">F</th>
+                                <th class="px-1 py-1 text-center font-semibold text-slate-400">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual A</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">1379</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">5</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">23</td><td class="px-2 py-1 text-center font-mono text-xs text-slate-400">0</td><td class="px-2 py-1 text-center font-mono text-xs text-slate-400">0</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">1407</td></tr><tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual B</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">212</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">11</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">35</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">2</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">4</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">264</td></tr><tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual C</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">105</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">8</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">68</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">2</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">11</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">194</td></tr><tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual D</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">27</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">5</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">37</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">6</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">17</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">92</td></tr><tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual F</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">5</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">1</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">24</td><td class="px-2 py-1 text-center font-mono text-xs text-slate-400">0</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">13</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">43</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="bg-white border border-slate-200 rounded-lg p-3 shadow-sm">
+                <div class="flex justify-between items-center mb-2 pb-1 border-b border-slate-100 text-xs">
+                    <span class="font-bold text-slate-700">Fold 5 Actual Table</span>
+                    <span class="font-mono text-indigo-600 font-semibold">Acc: 74.0%</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-[11px] border-collapse">
+                        <thead>
+                            <tr class="text-slate-500 border-b border-slate-200">
+                                <th class="px-1 py-1 text-left font-semibold">Act \ Pred</th>
+                                <th class="px-1 py-1 text-center font-semibold text-slate-700">A</th><th class="px-1 py-1 text-center font-semibold text-slate-700">B</th><th class="px-1 py-1 text-center font-semibold text-slate-700">C</th><th class="px-1 py-1 text-center font-semibold text-slate-700">D</th><th class="px-1 py-1 text-center font-semibold text-slate-700">F</th>
+                                <th class="px-1 py-1 text-center font-semibold text-slate-400">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual A</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">1380</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">7</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">19</td><td class="px-2 py-1 text-center font-mono text-xs text-slate-400">0</td><td class="px-2 py-1 text-center font-mono text-xs text-slate-400">0</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">1406</td></tr><tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual B</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">207</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">14</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">41</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">1</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">2</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">265</td></tr><tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual C</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">102</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">12</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">69</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">2</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">9</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">194</td></tr><tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual D</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">24</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">2</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">48</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">1</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">17</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">92</td></tr><tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual F</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">3</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">3</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">18</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">3</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">16</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">43</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-100 gap-2">
+                <div class="flex items-center gap-3">
+                    <span class="w-8 h-8 rounded-lg bg-indigo-600 text-white font-bold flex items-center justify-center text-sm shadow-sm">
+                        2
+                    </span>
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-800">Decision Tree</h3>
+                        <p class="text-xs text-slate-500">20% Stratified Validation per fold (2,000 samples / fold)</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3 text-xs font-mono">
+                    <span class="px-2.5 py-1 rounded bg-indigo-50 text-indigo-700 font-bold border border-indigo-100">
+                        Accuracy: 67.12%
+                    </span>
+                    <span class="px-2.5 py-1 rounded bg-emerald-50 text-emerald-700 font-bold border border-emerald-100">
+                        F-Measure: 67.45%
+                    </span>
+                </div>
+            </div>
+
+            <!-- 5 Folds Summary Table -->
+            <div class="overflow-x-auto">
+                <table class="w-full text-xs text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50 text-slate-600 border-b border-slate-200 font-semibold">
+                            <th class="px-3 py-2">Validation Split</th>
+                            <th class="px-3 py-2 text-center text-indigo-700">Accuracy</th>
+                            <th class="px-3 py-2 text-center">Precision (Weighted)</th>
+                            <th class="px-3 py-2 text-center">Recall (Weighted)</th>
+                            <th class="px-3 py-2 text-center text-emerald-700">F-Measure (Weighted)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+            <tr class="hover:bg-slate-50 border-b border-slate-100">
+                <td class="px-3 py-2 font-medium text-slate-700">Fold 1</td>
+                <td class="px-3 py-2 text-center font-mono font-semibold text-indigo-600">67.30%</td>
+                <td class="px-3 py-2 text-center font-mono text-slate-600">67.53%</td>
+                <td class="px-3 py-2 text-center font-mono text-slate-600">67.30%</td>
+                <td class="px-3 py-2 text-center font-mono font-semibold text-emerald-600">67.40%</td>
+            </tr>
+            
+            <tr class="hover:bg-slate-50 border-b border-slate-100">
+                <td class="px-3 py-2 font-medium text-slate-700">Fold 2</td>
+                <td class="px-3 py-2 text-center font-mono font-semibold text-indigo-600">67.20%</td>
+                <td class="px-3 py-2 text-center font-mono text-slate-600">67.68%</td>
+                <td class="px-3 py-2 text-center font-mono text-slate-600">67.20%</td>
+                <td class="px-3 py-2 text-center font-mono font-semibold text-emerald-600">67.40%</td>
+            </tr>
+            
+            <tr class="hover:bg-slate-50 border-b border-slate-100">
+                <td class="px-3 py-2 font-medium text-slate-700">Fold 3</td>
+                <td class="px-3 py-2 text-center font-mono font-semibold text-indigo-600">66.05%</td>
+                <td class="px-3 py-2 text-center font-mono text-slate-600">67.85%</td>
+                <td class="px-3 py-2 text-center font-mono text-slate-600">66.05%</td>
+                <td class="px-3 py-2 text-center font-mono font-semibold text-emerald-600">66.90%</td>
+            </tr>
+            
+            <tr class="hover:bg-slate-50 border-b border-slate-100">
+                <td class="px-3 py-2 font-medium text-slate-700">Fold 4</td>
+                <td class="px-3 py-2 text-center font-mono font-semibold text-indigo-600">67.30%</td>
+                <td class="px-3 py-2 text-center font-mono text-slate-600">67.62%</td>
+                <td class="px-3 py-2 text-center font-mono text-slate-600">67.30%</td>
+                <td class="px-3 py-2 text-center font-mono font-semibold text-emerald-600">67.45%</td>
+            </tr>
+            
+            <tr class="hover:bg-slate-50 border-b border-slate-100">
+                <td class="px-3 py-2 font-medium text-slate-700">Fold 5</td>
+                <td class="px-3 py-2 text-center font-mono font-semibold text-indigo-600">67.75%</td>
+                <td class="px-3 py-2 text-center font-mono text-slate-600">68.45%</td>
+                <td class="px-3 py-2 text-center font-mono text-slate-600">67.75%</td>
+                <td class="px-3 py-2 text-center font-mono font-semibold text-emerald-600">68.09%</td>
+            </tr>
+            
+        <tr class="bg-slate-100/80 font-bold border-t-2 border-slate-200">
+            <td class="px-3 py-2 text-slate-800">Mean (Average)</td>
+            <td class="px-3 py-2 text-center font-mono text-indigo-700">67.12%</td>
+            <td class="px-3 py-2 text-center font-mono text-slate-800">67.83%</td>
+            <td class="px-3 py-2 text-center font-mono text-slate-800">67.12%</td>
+            <td class="px-3 py-2 text-center font-mono text-emerald-700">67.45%</td>
+        </tr>
+        <tr class="bg-slate-50 text-xs text-slate-500 font-medium">
+            <td class="px-3 py-1.5 text-slate-500">Std Deviation (±)</td>
+            <td class="px-3 py-1.5 text-center font-mono">±0.64%</td>
+            <td class="px-3 py-1.5 text-center font-mono">±0.37%</td>
+            <td class="px-3 py-1.5 text-center font-mono">±0.64%</td>
+            <td class="px-3 py-1.5 text-center font-mono">±0.43%</td>
+        </tr>
+        
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 5 Confusion Matrices in a compact grid -->
+            <div>
+                <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                    5 Folds Actual Tables (Confusion Matrices)
+                </h4>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                    
+            <div class="bg-white border border-slate-200 rounded-lg p-3 shadow-sm">
+                <div class="flex justify-between items-center mb-2 pb-1 border-b border-slate-100 text-xs">
+                    <span class="font-bold text-slate-700">Fold 1 Actual Table</span>
+                    <span class="font-mono text-indigo-600 font-semibold">Acc: 67.3%</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-[11px] border-collapse">
+                        <thead>
+                            <tr class="text-slate-500 border-b border-slate-200">
+                                <th class="px-1 py-1 text-left font-semibold">Act \ Pred</th>
+                                <th class="px-1 py-1 text-center font-semibold text-slate-700">A</th><th class="px-1 py-1 text-center font-semibold text-slate-700">B</th><th class="px-1 py-1 text-center font-semibold text-slate-700">C</th><th class="px-1 py-1 text-center font-semibold text-slate-700">D</th><th class="px-1 py-1 text-center font-semibold text-slate-700">F</th>
+                                <th class="px-1 py-1 text-center font-semibold text-slate-400">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual A</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">1194</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">146</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">57</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">9</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">1</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">1407</td></tr><tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual B</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">132</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">62</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">49</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">18</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">4</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">265</td></tr><tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual C</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">51</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">48</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">59</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">20</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">16</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">194</td></tr><tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual D</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">19</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">20</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">23</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">21</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">9</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">92</td></tr><tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual F</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">4</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">4</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">15</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">9</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">10</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">42</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="bg-white border border-slate-200 rounded-lg p-3 shadow-sm">
+                <div class="flex justify-between items-center mb-2 pb-1 border-b border-slate-100 text-xs">
+                    <span class="font-bold text-slate-700">Fold 2 Actual Table</span>
+                    <span class="font-mono text-indigo-600 font-semibold">Acc: 67.2%</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-[11px] border-collapse">
+                        <thead>
+                            <tr class="text-slate-500 border-b border-slate-200">
+                                <th class="px-1 py-1 text-left font-semibold">Act \ Pred</th>
+                                <th class="px-1 py-1 text-center font-semibold text-slate-700">A</th><th class="px-1 py-1 text-center font-semibold text-slate-700">B</th><th class="px-1 py-1 text-center font-semibold text-slate-700">C</th><th class="px-1 py-1 text-center font-semibold text-slate-700">D</th><th class="px-1 py-1 text-center font-semibold text-slate-700">F</th>
+                                <th class="px-1 py-1 text-center font-semibold text-slate-400">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual A</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">1197</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">150</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">41</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">14</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">5</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">1407</td></tr><tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual B</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">120</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">77</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">44</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">15</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">8</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">264</td></tr><tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual C</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">56</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">53</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">39</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">27</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">19</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">194</td></tr><tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual D</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">14</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">14</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">30</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">19</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">16</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">93</td></tr><tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual F</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">4</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">3</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">18</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">5</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">12</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">42</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="bg-white border border-slate-200 rounded-lg p-3 shadow-sm">
+                <div class="flex justify-between items-center mb-2 pb-1 border-b border-slate-100 text-xs">
+                    <span class="font-bold text-slate-700">Fold 3 Actual Table</span>
+                    <span class="font-mono text-indigo-600 font-semibold">Acc: 66.0%</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-[11px] border-collapse">
+                        <thead>
+                            <tr class="text-slate-500 border-b border-slate-200">
+                                <th class="px-1 py-1 text-left font-semibold">Act \ Pred</th>
+                                <th class="px-1 py-1 text-center font-semibold text-slate-700">A</th><th class="px-1 py-1 text-center font-semibold text-slate-700">B</th><th class="px-1 py-1 text-center font-semibold text-slate-700">C</th><th class="px-1 py-1 text-center font-semibold text-slate-700">D</th><th class="px-1 py-1 text-center font-semibold text-slate-700">F</th>
+                                <th class="px-1 py-1 text-center font-semibold text-slate-400">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual A</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">1172</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">155</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">63</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">16</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">1</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">1407</td></tr><tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual B</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">108</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">73</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">60</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">19</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">4</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">264</td></tr><tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual C</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">58</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">56</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">45</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">24</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">11</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">194</td></tr><tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual D</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">12</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">21</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">32</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">18</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">10</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">93</td></tr><tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual F</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">1</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">6</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">12</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">10</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">13</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">42</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="bg-white border border-slate-200 rounded-lg p-3 shadow-sm">
+                <div class="flex justify-between items-center mb-2 pb-1 border-b border-slate-100 text-xs">
+                    <span class="font-bold text-slate-700">Fold 4 Actual Table</span>
+                    <span class="font-mono text-indigo-600 font-semibold">Acc: 67.3%</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-[11px] border-collapse">
+                        <thead>
+                            <tr class="text-slate-500 border-b border-slate-200">
+                                <th class="px-1 py-1 text-left font-semibold">Act \ Pred</th>
+                                <th class="px-1 py-1 text-center font-semibold text-slate-700">A</th><th class="px-1 py-1 text-center font-semibold text-slate-700">B</th><th class="px-1 py-1 text-center font-semibold text-slate-700">C</th><th class="px-1 py-1 text-center font-semibold text-slate-700">D</th><th class="px-1 py-1 text-center font-semibold text-slate-700">F</th>
+                                <th class="px-1 py-1 text-center font-semibold text-slate-400">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual A</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">1186</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">138</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">65</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">15</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">3</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">1407</td></tr><tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual B</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">140</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">69</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">37</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">11</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">7</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">264</td></tr><tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual C</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">57</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">53</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">55</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">22</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">7</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">194</td></tr><tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual D</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">11</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">15</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">33</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">24</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">9</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">92</td></tr><tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual F</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">3</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">5</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">10</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">13</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">12</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">43</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="bg-white border border-slate-200 rounded-lg p-3 shadow-sm">
+                <div class="flex justify-between items-center mb-2 pb-1 border-b border-slate-100 text-xs">
+                    <span class="font-bold text-slate-700">Fold 5 Actual Table</span>
+                    <span class="font-mono text-indigo-600 font-semibold">Acc: 67.8%</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-[11px] border-collapse">
+                        <thead>
+                            <tr class="text-slate-500 border-b border-slate-200">
+                                <th class="px-1 py-1 text-left font-semibold">Act \ Pred</th>
+                                <th class="px-1 py-1 text-center font-semibold text-slate-700">A</th><th class="px-1 py-1 text-center font-semibold text-slate-700">B</th><th class="px-1 py-1 text-center font-semibold text-slate-700">C</th><th class="px-1 py-1 text-center font-semibold text-slate-700">D</th><th class="px-1 py-1 text-center font-semibold text-slate-700">F</th>
+                                <th class="px-1 py-1 text-center font-semibold text-slate-400">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual A</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">1188</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">148</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">54</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">16</td><td class="px-2 py-1 text-center font-mono text-xs text-slate-400">0</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">1406</td></tr><tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual B</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">129</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">69</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">41</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">20</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">6</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">265</td></tr><tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual C</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">50</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">32</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">63</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">37</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">12</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">194</td></tr><tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual D</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">12</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">19</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">27</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">19</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">15</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">92</td></tr><tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual F</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">4</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">5</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">9</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">9</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">16</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">43</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-100 gap-2">
+                <div class="flex items-center gap-3">
+                    <span class="w-8 h-8 rounded-lg bg-indigo-600 text-white font-bold flex items-center justify-center text-sm shadow-sm">
+                        3
+                    </span>
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-800">K-Nearest Neighbors (K-NN, K=5)</h3>
+                        <p class="text-xs text-slate-500">20% Stratified Validation per fold (2,000 samples / fold)</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3 text-xs font-mono">
+                    <span class="px-2.5 py-1 rounded bg-indigo-50 text-indigo-700 font-bold border border-indigo-100">
+                        Accuracy: 73.03%
+                    </span>
+                    <span class="px-2.5 py-1 rounded bg-emerald-50 text-emerald-700 font-bold border border-emerald-100">
+                        F-Measure: 70.16%
+                    </span>
+                </div>
+            </div>
+
+            <!-- 5 Folds Summary Table -->
+            <div class="overflow-x-auto">
+                <table class="w-full text-xs text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50 text-slate-600 border-b border-slate-200 font-semibold">
+                            <th class="px-3 py-2">Validation Split</th>
+                            <th class="px-3 py-2 text-center text-indigo-700">Accuracy</th>
+                            <th class="px-3 py-2 text-center">Precision (Weighted)</th>
+                            <th class="px-3 py-2 text-center">Recall (Weighted)</th>
+                            <th class="px-3 py-2 text-center text-emerald-700">F-Measure (Weighted)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+            <tr class="hover:bg-slate-50 border-b border-slate-100">
+                <td class="px-3 py-2 font-medium text-slate-700">Fold 1</td>
+                <td class="px-3 py-2 text-center font-mono font-semibold text-indigo-600">72.70%</td>
+                <td class="px-3 py-2 text-center font-mono text-slate-600">67.89%</td>
+                <td class="px-3 py-2 text-center font-mono text-slate-600">72.70%</td>
+                <td class="px-3 py-2 text-center font-mono font-semibold text-emerald-600">69.79%</td>
+            </tr>
+            
+            <tr class="hover:bg-slate-50 border-b border-slate-100">
+                <td class="px-3 py-2 font-medium text-slate-700">Fold 2</td>
+                <td class="px-3 py-2 text-center font-mono font-semibold text-indigo-600">71.90%</td>
+                <td class="px-3 py-2 text-center font-mono text-slate-600">66.94%</td>
+                <td class="px-3 py-2 text-center font-mono text-slate-600">71.90%</td>
+                <td class="px-3 py-2 text-center font-mono font-semibold text-emerald-600">68.93%</td>
+            </tr>
+            
+            <tr class="hover:bg-slate-50 border-b border-slate-100">
+                <td class="px-3 py-2 font-medium text-slate-700">Fold 3</td>
+                <td class="px-3 py-2 text-center font-mono font-semibold text-indigo-600">73.25%</td>
+                <td class="px-3 py-2 text-center font-mono text-slate-600">68.44%</td>
+                <td class="px-3 py-2 text-center font-mono text-slate-600">73.25%</td>
+                <td class="px-3 py-2 text-center font-mono font-semibold text-emerald-600">70.27%</td>
+            </tr>
+            
+            <tr class="hover:bg-slate-50 border-b border-slate-100">
+                <td class="px-3 py-2 font-medium text-slate-700">Fold 4</td>
+                <td class="px-3 py-2 text-center font-mono font-semibold text-indigo-600">73.90%</td>
+                <td class="px-3 py-2 text-center font-mono text-slate-600">70.08%</td>
+                <td class="px-3 py-2 text-center font-mono text-slate-600">73.90%</td>
+                <td class="px-3 py-2 text-center font-mono font-semibold text-emerald-600">71.26%</td>
+            </tr>
+            
+            <tr class="hover:bg-slate-50 border-b border-slate-100">
+                <td class="px-3 py-2 font-medium text-slate-700">Fold 5</td>
+                <td class="px-3 py-2 text-center font-mono font-semibold text-indigo-600">73.40%</td>
+                <td class="px-3 py-2 text-center font-mono text-slate-600">68.81%</td>
+                <td class="px-3 py-2 text-center font-mono text-slate-600">73.40%</td>
+                <td class="px-3 py-2 text-center font-mono font-semibold text-emerald-600">70.54%</td>
+            </tr>
+            
+        <tr class="bg-slate-100/80 font-bold border-t-2 border-slate-200">
+            <td class="px-3 py-2 text-slate-800">Mean (Average)</td>
+            <td class="px-3 py-2 text-center font-mono text-indigo-700">73.03%</td>
+            <td class="px-3 py-2 text-center font-mono text-slate-800">68.43%</td>
+            <td class="px-3 py-2 text-center font-mono text-slate-800">73.03%</td>
+            <td class="px-3 py-2 text-center font-mono text-emerald-700">70.16%</td>
+        </tr>
+        <tr class="bg-slate-50 text-xs text-slate-500 font-medium">
+            <td class="px-3 py-1.5 text-slate-500">Std Deviation (±)</td>
+            <td class="px-3 py-1.5 text-center font-mono">±0.76%</td>
+            <td class="px-3 py-1.5 text-center font-mono">±1.16%</td>
+            <td class="px-3 py-1.5 text-center font-mono">±0.76%</td>
+            <td class="px-3 py-1.5 text-center font-mono">±0.87%</td>
+        </tr>
+        
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 5 Confusion Matrices in a compact grid -->
+            <div>
+                <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                    5 Folds Actual Tables (Confusion Matrices)
+                </h4>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                    
+            <div class="bg-white border border-slate-200 rounded-lg p-3 shadow-sm">
+                <div class="flex justify-between items-center mb-2 pb-1 border-b border-slate-100 text-xs">
+                    <span class="font-bold text-slate-700">Fold 1 Actual Table</span>
+                    <span class="font-mono text-indigo-600 font-semibold">Acc: 72.7%</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-[11px] border-collapse">
+                        <thead>
+                            <tr class="text-slate-500 border-b border-slate-200">
+                                <th class="px-1 py-1 text-left font-semibold">Act \ Pred</th>
+                                <th class="px-1 py-1 text-center font-semibold text-slate-700">A</th><th class="px-1 py-1 text-center font-semibold text-slate-700">B</th><th class="px-1 py-1 text-center font-semibold text-slate-700">C</th><th class="px-1 py-1 text-center font-semibold text-slate-700">D</th><th class="px-1 py-1 text-center font-semibold text-slate-700">F</th>
+                                <th class="px-1 py-1 text-center font-semibold text-slate-400">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual A</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">1326</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">51</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">27</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">3</td><td class="px-2 py-1 text-center font-mono text-xs text-slate-400">0</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">1407</td></tr><tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual B</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">170</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">55</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">30</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">7</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">3</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">265</td></tr><tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual C</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">67</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">48</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">52</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">20</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">7</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">194</td></tr><tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual D</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">18</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">29</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">25</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">15</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">5</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">92</td></tr><tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual F</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">7</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">5</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">17</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">7</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">6</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">42</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="bg-white border border-slate-200 rounded-lg p-3 shadow-sm">
+                <div class="flex justify-between items-center mb-2 pb-1 border-b border-slate-100 text-xs">
+                    <span class="font-bold text-slate-700">Fold 2 Actual Table</span>
+                    <span class="font-mono text-indigo-600 font-semibold">Acc: 71.9%</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-[11px] border-collapse">
+                        <thead>
+                            <tr class="text-slate-500 border-b border-slate-200">
+                                <th class="px-1 py-1 text-left font-semibold">Act \ Pred</th>
+                                <th class="px-1 py-1 text-center font-semibold text-slate-700">A</th><th class="px-1 py-1 text-center font-semibold text-slate-700">B</th><th class="px-1 py-1 text-center font-semibold text-slate-700">C</th><th class="px-1 py-1 text-center font-semibold text-slate-700">D</th><th class="px-1 py-1 text-center font-semibold text-slate-700">F</th>
+                                <th class="px-1 py-1 text-center font-semibold text-slate-400">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual A</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">1321</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">65</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">18</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">3</td><td class="px-2 py-1 text-center font-mono text-xs text-slate-400">0</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">1407</td></tr><tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual B</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">172</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">50</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">35</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">5</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">2</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">264</td></tr><tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual C</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">78</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">52</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">42</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">15</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">7</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">194</td></tr><tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual D</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">17</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">17</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">31</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">19</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">9</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">93</td></tr><tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual F</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">2</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">9</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">11</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">14</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">6</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">42</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="bg-white border border-slate-200 rounded-lg p-3 shadow-sm">
+                <div class="flex justify-between items-center mb-2 pb-1 border-b border-slate-100 text-xs">
+                    <span class="font-bold text-slate-700">Fold 3 Actual Table</span>
+                    <span class="font-mono text-indigo-600 font-semibold">Acc: 73.2%</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-[11px] border-collapse">
+                        <thead>
+                            <tr class="text-slate-500 border-b border-slate-200">
+                                <th class="px-1 py-1 text-left font-semibold">Act \ Pred</th>
+                                <th class="px-1 py-1 text-center font-semibold text-slate-700">A</th><th class="px-1 py-1 text-center font-semibold text-slate-700">B</th><th class="px-1 py-1 text-center font-semibold text-slate-700">C</th><th class="px-1 py-1 text-center font-semibold text-slate-700">D</th><th class="px-1 py-1 text-center font-semibold text-slate-700">F</th>
+                                <th class="px-1 py-1 text-center font-semibold text-slate-400">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual A</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">1335</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">44</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">27</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">1</td><td class="px-2 py-1 text-center font-mono text-xs text-slate-400">0</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">1407</td></tr><tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual B</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">168</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">56</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">30</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">6</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">4</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">264</td></tr><tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual C</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">73</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">49</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">51</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">16</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">5</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">194</td></tr><tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual D</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">16</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">31</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">28</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">15</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">3</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">93</td></tr><tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual F</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">2</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">5</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">17</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">10</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">8</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">42</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="bg-white border border-slate-200 rounded-lg p-3 shadow-sm">
+                <div class="flex justify-between items-center mb-2 pb-1 border-b border-slate-100 text-xs">
+                    <span class="font-bold text-slate-700">Fold 4 Actual Table</span>
+                    <span class="font-mono text-indigo-600 font-semibold">Acc: 73.9%</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-[11px] border-collapse">
+                        <thead>
+                            <tr class="text-slate-500 border-b border-slate-200">
+                                <th class="px-1 py-1 text-left font-semibold">Act \ Pred</th>
+                                <th class="px-1 py-1 text-center font-semibold text-slate-700">A</th><th class="px-1 py-1 text-center font-semibold text-slate-700">B</th><th class="px-1 py-1 text-center font-semibold text-slate-700">C</th><th class="px-1 py-1 text-center font-semibold text-slate-700">D</th><th class="px-1 py-1 text-center font-semibold text-slate-700">F</th>
+                                <th class="px-1 py-1 text-center font-semibold text-slate-400">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual A</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">1329</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">44</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">27</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">7</td><td class="px-2 py-1 text-center font-mono text-xs text-slate-400">0</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">1407</td></tr><tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual B</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">164</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">66</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">26</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">7</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">1</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">264</td></tr><tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual C</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">74</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">53</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">51</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">15</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">1</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">194</td></tr><tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual D</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">14</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">20</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">31</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">25</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">2</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">92</td></tr><tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual F</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">3</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">4</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">21</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">8</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">7</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">43</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="bg-white border border-slate-200 rounded-lg p-3 shadow-sm">
+                <div class="flex justify-between items-center mb-2 pb-1 border-b border-slate-100 text-xs">
+                    <span class="font-bold text-slate-700">Fold 5 Actual Table</span>
+                    <span class="font-mono text-indigo-600 font-semibold">Acc: 73.4%</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-[11px] border-collapse">
+                        <thead>
+                            <tr class="text-slate-500 border-b border-slate-200">
+                                <th class="px-1 py-1 text-left font-semibold">Act \ Pred</th>
+                                <th class="px-1 py-1 text-center font-semibold text-slate-700">A</th><th class="px-1 py-1 text-center font-semibold text-slate-700">B</th><th class="px-1 py-1 text-center font-semibold text-slate-700">C</th><th class="px-1 py-1 text-center font-semibold text-slate-700">D</th><th class="px-1 py-1 text-center font-semibold text-slate-700">F</th>
+                                <th class="px-1 py-1 text-center font-semibold text-slate-400">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual A</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">1331</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">51</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">19</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">3</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">2</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">1406</td></tr><tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual B</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">159</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">56</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">33</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">17</td><td class="px-2 py-1 text-center font-mono text-xs text-slate-400">0</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">265</td></tr><tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual C</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">81</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">43</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">49</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">17</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">4</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">194</td></tr><tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual D</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">15</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">18</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">29</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">24</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">6</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">92</td></tr><tr><td class="px-2 py-1 text-left font-medium text-slate-600 bg-slate-50">Actual F</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">5</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">7</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">8</td><td class="px-2 py-1 text-center font-mono text-xs bg-rose-50 text-rose-700 font-medium">15</td><td class="px-2 py-1 text-center font-mono text-xs bg-emerald-100 font-bold text-emerald-800">8</td><td class="px-2 py-1 text-center font-mono text-xs font-semibold text-slate-500">43</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+                </div>
+            </div>
+        </div>
+        
+        </div>
+
+        <!-- Footer -->
+        <footer class="pt-6 pb-2 text-center text-xs text-slate-400 font-mono border-t border-slate-200">
+            AI Subject • Lab 5 Model Evaluation • Generated: 2026-10-08 13:57:26
+        </footer>
+
+    </div>
+
+    <!-- Chart.js Script -->
+    <script>
+        const ctx = document.getElementById('comparisonChart').getContext('2d');
+        const models = ["Naive Bayes (Bayes)", "Decision Tree", "K-Nearest Neighbors (K-NN, K=5)"];
+        const accs = [73.86, 67.12, 73.03];
+        const f1s = [67.54959540566722, 67.44821793009021, 70.15814406290545];
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: models,
+                datasets: [
+                    {
+                        label: 'Accuracy (%)',
+                        data: accs,
+                        backgroundColor: '#6366f1',
+                        borderRadius: 4
+                    },
+                    {
+                        label: 'F-Measure (%)',
+                        data: f1s,
+                        backgroundColor: '#10b981',
+                        borderRadius: 4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: { boxWidth: 12, font: { size: 11 } }
+                    }
+                },
+                scales: {
+                    y: {
+                        min: 60,
+                        max: 80,
+                        ticks: { callback: v => v + '%' }
+                    },
+                    x: {
+                        ticks: { font: { size: 10, weight: 'bold' } }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
